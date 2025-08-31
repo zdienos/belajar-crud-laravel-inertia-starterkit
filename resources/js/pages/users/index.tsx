@@ -5,8 +5,7 @@ import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersTable } from './components/users-table'
 import UsersProvider from './context/users-context'
-import { userListSchema } from './data/schema'
-// 1. HAPUS BARIS INI: import { users } from './data/users'
+
 
 interface userType {
 	id: number,
@@ -36,7 +35,6 @@ interface PaginatedUsers {
 // export default function Users({ users.data }: { users: any[] }) { // Anda bisa perbaiki 'any[]' dengan tipe data yang lebih spesifik
 export default function Users({ users }: { users: PaginatedUsers }) {
 
-	// Parse user list dari props, bukan dari file statis lagi
 	// const userList = userListSchema.parse(users.data)
 	const userList = users
 
@@ -58,7 +56,6 @@ export default function Users({ users }: { users: PaginatedUsers }) {
 						<UsersTable data={userList} columns={columns} />
 					</div>
 				</Main>
-
 				<UsersDialogs />
 			</AuthenticatedLayout>
 		</UsersProvider>

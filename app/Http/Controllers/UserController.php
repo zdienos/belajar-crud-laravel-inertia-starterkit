@@ -9,6 +9,7 @@ use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -57,6 +58,9 @@ class UserController extends Controller
 			'name' => $validated['name'],
 			'email' => $validated['email'],
 			'password' => Hash::make($validated['password']),
+			'phone_number' => $request->phone_number,
+			'role' => $request->role,
+			'status' => 'active'
 		]);
 
 		// 3. Redirect kembali ke halaman index dengan pesan sukses
@@ -85,29 +89,69 @@ class UserController extends Controller
 	/**
 	 * Memperbarui data user tertentu di dalam database.
 	 */
+	// public function update(Request $request, User $user): RedirectResponse
+	// {
+	// 	// 1. Validasi input
+	// 	$validated = $request->validate([
+	// 		'name' => 'required|string|max:255',
+	// 		// Pastikan email unik, kecuali untuk user yang sedang diedit saat ini
+	// 		'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+	// 		// Password bersifat opsional saat update
+	// 		'password' => ['nullable', 'confirmed', Password::defaults()],
+	// 	]);
+
+	// 	// 2. Update data user
+	// 	$user->name = $validated['name'];
+	// 	$user->email = $validated['email'];
+
+	// 	// 3. Jika ada password baru, hash dan update passwordnya
+	// 	if ($request->filled('password')) {
+	// 		$user->password = Hash::make($validated['password']);
+	// 	}
+
+	// 	$user->save();
+
+	// 	// 4. Redirect kembali ke halaman index dengan pesan sukses
+	// 	return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
+	// }
+
 	public function update(Request $request, User $user): RedirectResponse
 	{
-		// 1. Validasi input
+		// 1. Validasi input dari form edit
 		$validated = $request->validate([
 			'name' => 'required|string|max:255',
-			// Pastikan email unik, kecuali untuk user yang sedang diedit saat ini
-			'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-			// Password bersifat opsional saat update
+			// Rule::unique akan mengabaikan email user saat ini,
+			// sehingga tidak terjadi error "email already exists" jika email tidak diubah.
+			'email' => [
+				'required',
+				'string',
+				'email',
+				'max:255',
+				Rule::unique('users')->ignore($user->id),
+			],
+			'phone_number' => 'required|string|max:20',
+			'role' => 'required|string|in:manager,cashier,admin,superadmin', // Sesuaikan dengan role yang ada
+			// Password bersifat opsional ('nullable') saat update.
+			// Jika tidak diisi, validasi ini akan dilewati.
 			'password' => ['nullable', 'confirmed', Password::defaults()],
 		]);
 
-		// 2. Update data user
-		$user->name = $validated['name'];
-		$user->email = $validated['email'];
+		// 2. Update data dasar user
+		$user->update([
+			'name' => $validated['name'],
+			'email' => $validated['email'],
+			'phone_number' => $validated['phone_number'],
+			'role' => $validated['role'],
+		]);
 
-		// 3. Jika ada password baru, hash dan update passwordnya
+		// 3. Hanya update password jika field password diisi pada form
 		if ($request->filled('password')) {
-			$user->password = Hash::make($validated['password']);
+			$user->update([
+				'password' => Hash::make($validated['password']),
+			]);
 		}
 
-		$user->save();
-
-		// 4. Redirect kembali ke halaman index dengan pesan sukses
+		// 4. Redirect kembali dengan pesan sukses
 		return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
 	}
 

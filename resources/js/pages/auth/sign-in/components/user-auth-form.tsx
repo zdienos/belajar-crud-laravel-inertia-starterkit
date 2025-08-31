@@ -15,7 +15,7 @@ type UserAuthFormProps = HTMLAttributes<HTMLDivElement> & {
 
 export function UserAuthForm({ className, status, canResetPassword = true, ...props }: UserAuthFormProps) {
 	const { data, setData, post, processing, errors, reset } = useForm({
-		email: 'shadcn@gmail.com',
+		email: 'test@example.com',
 		password: 'password',
 		remember: false,
 	});
