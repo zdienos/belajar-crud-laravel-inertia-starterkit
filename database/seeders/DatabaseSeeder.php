@@ -8,18 +8,18 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
-    {
-        // User::factory(10)->create();
+	/**
+	 * Seed the application's database.
+	 */
+	public function run(): void
+	{
+		User::factory(30)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'shadcn@gmail.com',
-            'email_verified_at' => now(),
-            'password' => bcrypt('password'), // password
-        ]);
-    }
+		User::factory()->create([
+			'name' => 'Test User',
+			'email' => 'test@example.com',
+		]);
+
+		$this->call([RolePermissionSeeder::class]);
+	}
 }
